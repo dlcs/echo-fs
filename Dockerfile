@@ -1,7 +1,8 @@
-FROM alpine:3.9
+FROM alpine:3.14
 
 RUN apk add --update --no-cache --virtual=run-deps \
   python3 \
+  py3-pip \
   ca-certificates \
   curl \
   && rm -rf /var/cache/apk/*
