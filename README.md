@@ -1,5 +1,16 @@
 # echo-fs
+
 Echo is a highly available NFS rig for Amazon Web Services.
+
+It uses Redis as a backing store to maintain a [Sorted Set](https://redis.io/topics/data-types#sorted-sets) maintaining last accessed time for a given file.
+
+## Scripts
+
+There are 3 different 'modes' that echo-fs can be run in, corresponding to the 3 different entry points:
+
+* Listen - `echo_listener.py`: listens for messages from SNS or SQS. Sets SortedSet score, or copies file from S3->Nas depending on message.
+* Populate - `echo_populate.py`: starting from folder walks repo and updates SortedSet to record path and set score = last access time (`atime`).
+* Scavenger - `echo_scavenger.py`: if diskspace below threshold get a % of items from SortedSet and delete corresponding file if older than threshold.
 
 ## Initially populating Echo
 

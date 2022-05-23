@@ -41,7 +41,7 @@ def main():
     while lifecycle_continues():
         try:
             percentage_free = get_free_space(settings.CACHE_ROOT)
-            logger.info("percentage free = %s" % str(round(percentage_free, 2)))
+            logger.debug("percentage free = %s" % str(round(percentage_free, 2)))
 
             if percentage_free < settings.CACHE_FREE:
                 logger.info("disk space free is below threshold (" + str(settings.CACHE_FREE) + ")")
@@ -52,12 +52,12 @@ def main():
                     chunk_length = int((cardinality / 100) * settings.CHUNK_SIZE)
                     if chunk_length < 1:
                         chunk_length = 1
-                    logger.info(f"chunk length = {chunk_length}")
+                    logger.debug(f"chunk length = {chunk_length}")
                     chunk = get_access_set_range(chunk_length)
                     count = 0
 
                     for item in chunk:
-                        logger.info(f"considering item {item}")
+                        logger.debug(f"considering item {item}")
                         target = settings.CACHE_ROOT + item.decode("utf-8")
 
                         if settings.SCAVENGER_MIN_AGE_SECONDS > 0:
@@ -69,12 +69,12 @@ def main():
                                 continue
 
                             if age > settings.SCAVENGER_MIN_AGE_SECONDS:
-                                logger.info(f"found file {target} at age {age} greater than threshold {settings.SCAVENGER_MIN_AGE_SECONDS}, so will attempt delete")
+                                logger.debug(f"found file {target} at age {age} greater than threshold {settings.SCAVENGER_MIN_AGE_SECONDS}, so will attempt delete")
                             else:
-                                logger.info(f"found file {target} at age {age} less than or equal to threshold {settings.SCAVENGER_MIN_AGE_SECONDS}, so will not attempt delete")
+                                logger.debug(f"found file {target} at age {age} less than or equal to threshold {settings.SCAVENGER_MIN_AGE_SECONDS}, so will not attempt delete")
                                 continue
 
-                        logger.info(f"deleting: {target}")
+                        logger.debug(f"deleting: {target}")
                         remove_from_access_set(item)
 
                         try:
@@ -89,7 +89,7 @@ def main():
         except Exception as e:
             logger.error("hit problem during operation: " + str(e))
 
-        logger.info(f"sleeping for {settings.SCAVENGER_SLEEP_SECONDS} second(s)")
+        logger.debug(f"sleeping for {settings.SCAVENGER_SLEEP_SECONDS} second(s)")
         time.sleep(int(settings.SCAVENGER_SLEEP_SECONDS))
 
 
@@ -104,13 +104,13 @@ def signal_handler(signum, frame):
 
 
 def setup_signal_handling():
-    logger.info("setting up signal handling")
+    logger.debug("setting up signal handling")
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
 
 
 def remove_from_access_set(target):
-    logger.info(f"removing {target} from access set")
+    logger.debug(f"removing {target} from access set")
     redisClient.zrem("access", target)
 
 

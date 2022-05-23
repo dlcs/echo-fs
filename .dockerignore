@@ -1,0 +1,7 @@
+**/env
+**/venv
+**/pip-log.txt
+**/.idea
+**/Dockerfile*
+README.md
+LICENSE

@@ -1,7 +1,12 @@
-FROM alpine:3.9
+FROM alpine:3.14
+
+LABEL maintainer="Donald Gray <donald.gray@digirati.com>"
+LABEL org.opencontainers.image.source=https://github.com/dlcs/echo-fs
+LABEL org.opencontainers.image.description="A highly available NFS rig for AWS."
 
 RUN apk add --update --no-cache --virtual=run-deps \
   python3 \
+  py3-pip \
   ca-certificates \
   curl \
   && rm -rf /var/cache/apk/*
