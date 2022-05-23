@@ -19,10 +19,10 @@ def main():
     setup_signal_handling()
 
     keep_running = True
+    logger.info(f"redis client will connect to {settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}")
 
     while keep_running:
         global redisClient
-        logger.info(f"redis client will connect to {settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}")
         redisClient = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
 
         for path, _, files in os.walk(settings.CACHE_ROOT):
@@ -40,7 +40,7 @@ def main():
                 adding_name = full_path_name[len(settings.CACHE_ROOT):]
 
                 # if redisClient.zscore("access", adding_name) is None:
-                logger.info(f"adding {full_path_name} as {adding_name}: {access_time}")
+                logger.debug(f"adding {full_path_name} as {adding_name}: {access_time}")
                 mapping = {
                     adding_name: access_time
                 }
@@ -50,7 +50,7 @@ def main():
 
         keep_running = settings.POPULATE_LOOP
         if keep_running:
-            logger.info(f"sleeping for {settings.POPULATE_SLEEP_SECONDS} second(s)")
+            logger.debug(f"sleeping for {settings.POPULATE_SLEEP_SECONDS} second(s)")
             time.sleep(int(settings.POPULATE_SLEEP_SECONDS))
 
     logger.info("finished")
@@ -69,7 +69,7 @@ def signal_handler(signum, frame):
 
 
 def setup_signal_handling():
-    logger.info("setting up signal handling")
+    logger.debug("setting up signal handling")
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
 

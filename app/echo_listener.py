@@ -50,7 +50,7 @@ def main():
     errorQueue = sqs.get_queue_by_name(QueueName=settings.ERROR_QUEUE)
 
     while lifecycle_continues():
-        logger.info("checking for messages")
+        logger.debug("checking for messages")
         messages = input_queue.receive_messages(
             WaitTimeSeconds=10,
             MaxNumberOfMessages=settings.MESSAGES_PER_FETCH)
@@ -72,7 +72,7 @@ def signal_handler(signum, frame):
 
 
 def setup_signal_handling():
-    logger.info("setting up signal handling")
+    logger.debug("setting up signal handling")
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -123,7 +123,7 @@ def cache_item(payload):
     key = payload["key"]
     target = payload["target"]
 
-    logger.info(f"cache_item: s3://{bucket}/{key} -> {target}")
+    logger.debug(f"cache_item: s3://{bucket}/{key} -> {target}")
 
     target = settings.CACHE_ROOT + target.decode("utf-8")
 
@@ -136,7 +136,7 @@ def cache_item(payload):
         pass
 
     if os.path.exists(target):
-        logger.info("already exists in cache")
+        logger.debug("already exists in cache")
     else:
         # synchronisation lock
         # this uses a key in redis, based on the target name
@@ -168,13 +168,13 @@ def cache_item(payload):
             try:
                 with open(f"{target}.moving", "wb") as target_output:
                     s3.download_fileobj(bucket, key, target_output)
-                logger.info(f"downloaded {key} -> {target}.moving")
+                logger.debug(f"downloaded {key} -> {target}.moving")
                 os.rename(f"{target}.moving", target)
-                logger.info(f"renamed to {target}")
+                logger.debug(f"renamed to {target}")
                 record_access(target)
 
             except Exception as e:
-                logger.info(f"hit a problem while trying to download {key}: {e}")
+                logger.error(f"hit a problem while trying to download {key}: {e}")
                 return
 
             # remove synchronisation key
