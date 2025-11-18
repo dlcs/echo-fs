@@ -86,7 +86,7 @@ def main():
             logger.error("hit problem during operation: " + str(e))
 
         logger.debug(f"sleeping for {settings.SCAVENGER_SLEEP_SECONDS} second(s)")
-        time.sleep(int(settings.SCAVENGER_SLEEP_SECONDS))
+        time.sleep(settings.SCAVENGER_SLEEP_SECONDS)
 
 
 def lifecycle_continues():

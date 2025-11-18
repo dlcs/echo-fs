@@ -36,7 +36,6 @@ def main():
                 access_time = int(unix_timestamp)
                 adding_name = full_path_name[len(settings.CACHE_ROOT):]
 
-                # if redisClient.zscore("access", adding_name) is None:
                 logger.debug(f"adding {full_path_name} as {adding_name}: {access_time}")
                 mapping = {
                     adding_name: access_time
