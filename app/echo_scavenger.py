@@ -1,10 +1,6 @@
 import os
-import sys
 import redis
 import time
-import random
-import string
-import datetime
 import signal
 import logging
 from logzero import logger
@@ -124,7 +120,6 @@ def get_access_set_cardinality():
 
 def get_free_space(pathname):
     st = os.statvfs(pathname)
-    # free = st.f_bavail * st.f_frsize
     total = st.f_blocks * st.f_frsize
     used = st.f_frsize * (st.f_blocks - st.f_bfree)
     if total > 0:

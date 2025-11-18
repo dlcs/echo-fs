@@ -1,13 +1,8 @@
 import boto3
-from concurrent.futures.thread import ThreadPoolExecutor
 import json
 import os.path
-import sys
 import redis
 import time
-import random
-import string
-import datetime
 import signal
 import logging
 from logzero import logger
@@ -78,7 +73,6 @@ def setup_signal_handling():
 
 
 def process_message(message):
-    message_body = message.body
     message_body = get_effective_message(message)
 
     logger.debug("message type=" + message_body["_type"])
@@ -182,7 +176,6 @@ def cache_item(payload):
 
 
 def record_access(item):
-    #print "record_access for " + item
     access_time = int(time.time())
     mapping = {
         item: access_time

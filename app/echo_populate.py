@@ -1,9 +1,6 @@
 import os.path
-import sys
 import redis
 import time
-import string
-import datetime
 import signal
 import logging
 from logzero import logger
