@@ -6,6 +6,7 @@ import logging
 from logzero import logger
 import logzero
 import settings
+from shared import get_free_space
 
 requested_to_quit = False
 
@@ -116,15 +117,6 @@ def get_access_set_range(chunk_length):
 
 def get_access_set_cardinality():
     return redisClient.zcard("access")
-
-
-def get_free_space(pathname):
-    st = os.statvfs(pathname)
-    total = st.f_blocks * st.f_frsize
-    used = st.f_frsize * (st.f_blocks - st.f_bfree)
-    if total > 0:
-        return 100 - (100 * (float(used) / total))
-    return 100
 
 
 if __name__ == "__main__":

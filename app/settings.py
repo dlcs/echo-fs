@@ -35,5 +35,6 @@ ERROR_QUEUE = os.environ.get('ECHO_ERROR_QUEUE')
 SCAVENGER_SLEEP_SECONDS = int(os.environ.get('ECHO_SCAVENGER_SLEEP_SECONDS', default="30"))
 SCAVENGER_MIN_AGE_SECONDS = int(os.environ.get('ECHO_SCAVENGER_MIN_AGE_SECONDS', default="0"))
 
+POPULATE_CACHE_FREE = int(os.environ.get('ECHO_POPULATE_CACHE_THRESHOLD', default="60"))
 POPULATE_LOOP = strtobool(os.environ.get("ECHO_POPULATE_LOOP", default="False"))
 POPULATE_SLEEP_SECONDS = int(os.environ.get("ECHO_POPULATE_SLEEP_SECONDS", default="300"))

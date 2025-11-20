@@ -16,6 +16,7 @@ services:
     environment:
       - ECHO_POPULATE_LOOP=True
       - ECHO_POPULATE_SLEEP_SECONDS=60
+      - ECHO_POPULATE_CACHE_THRESHOLD=60
     volumes:
       - ./scratch:/scratch
     command: ["python3", "-u", "echo_populate.py"]
