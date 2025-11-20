@@ -12,6 +12,31 @@ There are 3 different 'modes' that echo-fs can be run in, corresponding to the 3
 * Populate - `echo_populate.py`: starting from folder walks repo and updates SortedSet to record path and set score = last access time (`atime`).
 * Scavenger - `echo_scavenger.py`: if diskspace below threshold get a % of items from SortedSet and delete corresponding file if older than threshold.
 
+## Configuration
+
+The follow envvars can be supplied to control operation
+
+| Name                           | Description                                                                                     | Default | Services  |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- | ------- | --------- |
+| DEBUG                          | If `True` debug logging is enabled                                                              | `False` | All       |
+| ECHO_REDIS_HOST                | Host for redis connection                                                                       |         | All       |
+| ECHO_REDIS_PORT                | Redis port                                                                                      | 6379    | All       |
+| ECHO_REDIS_DB                  | Redis logical DB                                                                                | 0       | All       |
+| ECHO_CACHE_ROOT                | Dir to serve as root for operations                                                             |         | All       |
+| ECHO_QUEUE_REGION              | AWS region for listener                                                                         |         | Listen    |
+| ECHO_INPUT_QUEUE               | SQS queue name to monitor for listener                                                          |         | Listen    |
+| ECHO_ERROR_QUEUE               | SQS queue to send error messages to                                                             |         | Listen    |
+| ECHO_SCAVENGER_CACHE_THRESHOLD | Scavenger will only run when less than this % of free disk space                                | 50      | Scavenger |
+| ECHO_SCAVENGER_CHUNK_SIZE      | % of available files to delete in each pass                                                     | 10      | Scavenger |
+| ECHO_SCAVENGER_SLEEP_SECONDS   | Number of seconds to sleep between scavenger runs                                               | 30      | Scavenger |
+| ECHO_SCAVENGER_MIN_AGE_SECONDS | If > 0, only files older than this will be considered for deletion. Age determined from `mtime` | 0       | Scavenger |
+| ECHO_POPULATE_CACHE_THRESHOLD  | Populate will only run when less than this % of free disk space                                 | 60      | Populate  |
+| ECHO_POPULATE_LOOP             | If `True`, populate script will continuously run.                                               | `False` | Populate  |
+| ECHO_POPULATE_SLEEP_SECONDS    | If continuously running, umber of seconds to sleep between populate runs sleep                  | 300     | Populate  |
+
+> [!NOTE]
+> Scavenger should run against a fully populated Redis DB, therefore `ECHO_POPULATE_CACHE_THRESHOLD` should be greater than `ECHO_SCAVENGER_CACHE_THRESHOLD`.
+
 ## Initially populating Echo
 
 If you want to run Echo on a volume that already has files in it, i.e. that Echo hasn't been made aware of during normal operations, you can populate Echo's Redis with the `echo-populate.py` script.
