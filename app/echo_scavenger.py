@@ -1,15 +1,12 @@
 import os
-import sys
 import redis
 import time
-import random
-import string
-import datetime
 import signal
 import logging
 from logzero import logger
 import logzero
 import settings
+from shared import get_free_space
 
 requested_to_quit = False
 
@@ -90,7 +87,7 @@ def main():
             logger.error("hit problem during operation: " + str(e))
 
         logger.debug(f"sleeping for {settings.SCAVENGER_SLEEP_SECONDS} second(s)")
-        time.sleep(int(settings.SCAVENGER_SLEEP_SECONDS))
+        time.sleep(settings.SCAVENGER_SLEEP_SECONDS)
 
 
 def lifecycle_continues():
@@ -120,16 +117,6 @@ def get_access_set_range(chunk_length):
 
 def get_access_set_cardinality():
     return redisClient.zcard("access")
-
-
-def get_free_space(pathname):
-    st = os.statvfs(pathname)
-    # free = st.f_bavail * st.f_frsize
-    total = st.f_blocks * st.f_frsize
-    used = st.f_frsize * (st.f_blocks - st.f_bfree)
-    if total > 0:
-        return 100 - (100 * (float(used) / total))
-    return 100
 
 
 if __name__ == "__main__":

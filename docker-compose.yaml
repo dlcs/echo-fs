@@ -1,0 +1,40 @@
+services:
+  echo-redis:
+    image: redis:latest
+    ports: 
+      - "6379:6379"
+  
+  echo-populate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      echo-redis:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      - ECHO_POPULATE_LOOP=True
+      - ECHO_POPULATE_SLEEP_SECONDS=60
+      - ECHO_POPULATE_CACHE_THRESHOLD=60
+    volumes:
+      - ./scratch:/scratch
+    command: ["python3", "-u", "echo_populate.py"]
+
+  echo-scavenger:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      echo-redis:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      - ECHO_SCAVENGER_CACHE_THRESHOLD=50
+      - ECHO_SCAVENGER_CHUNK_SIZE=2
+      - ECHO_SCAVENGER_SLEEP_SECONDS=10
+      - ECHO_SCAVENGER_MIN_AGE_SECONDS=180
+    volumes:
+      - ./scratch:/scratch
+    command: ["python3", "-u", "echo_scavenger.py"]

@@ -1,14 +1,12 @@
 import os.path
-import sys
 import redis
 import time
-import string
-import datetime
 import signal
 import logging
 from logzero import logger
 import logzero
 import settings
+from shared import get_free_space
 
 requested_to_quit = False
 
@@ -22,31 +20,36 @@ def main():
     logger.info(f"redis client will connect to {settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}")
 
     while keep_running:
-        global redisClient
-        redisClient = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
+        percentage_free = get_free_space(settings.CACHE_ROOT)
+        logger.debug("percentage free = %s" % str(round(percentage_free, 2)))
 
-        for path, _, files in os.walk(settings.CACHE_ROOT):
-            if not lifecycle_continues():
-                break
+        if percentage_free >= settings.POPULATE_CACHE_FREE:
+            logger.info("disk space free is above threshold (" + str(settings.POPULATE_CACHE_FREE) + "). No populate")
+        else:
+            global redisClient
+            redisClient = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
 
-            for filename in files:
+            for path, _, files in os.walk(settings.CACHE_ROOT):
                 if not lifecycle_continues():
                     break
 
-                full_path_name = os.path.join(path, filename)
-                unix_timestamp = os.path.getmtime(full_path_name)
+                for filename in files:
+                    if not lifecycle_continues():
+                        break
 
-                access_time = int(unix_timestamp)
-                adding_name = full_path_name[len(settings.CACHE_ROOT):]
+                    full_path_name = os.path.join(path, filename)
+                    unix_timestamp = os.path.getmtime(full_path_name)
 
-                # if redisClient.zscore("access", adding_name) is None:
-                logger.debug(f"adding {full_path_name} as {adding_name}: {access_time}")
-                mapping = {
-                    adding_name: access_time
-                }
-                redisClient.zadd("access", mapping)
+                    access_time = int(unix_timestamp)
+                    adding_name = full_path_name[len(settings.CACHE_ROOT):]
 
-        redisClient.close()
+                    logger.debug(f"adding {full_path_name} as {adding_name}: {access_time}")
+                    mapping = {
+                        adding_name: access_time
+                    }
+                    redisClient.zadd("access", mapping)
+
+            redisClient.close()
 
         keep_running = settings.POPULATE_LOOP
         if keep_running:
